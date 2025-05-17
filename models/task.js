@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 'Pendiente'
     },
     dueDate: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
     },
     userId: {

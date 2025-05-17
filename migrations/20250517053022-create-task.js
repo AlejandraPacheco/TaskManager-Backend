@@ -24,7 +24,7 @@ module.exports = {
         defaultValue: 'Pendiente'
       },
       dueDate: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATEONLY,
         allowNull: true
       },
       userId: {
