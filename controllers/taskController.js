@@ -1,4 +1,5 @@
 const { Task } = require('../models');
+const { Op } = require('sequelize');
 
 // Crear una nueva tarea
 exports.createTask = async (req, res) => {
@@ -29,13 +30,38 @@ exports.createTask = async (req, res) => {
 exports.getAllTasks = async (req, res) => {
     try {
         const userId = req.user.id;
-        const tasks = await Task.findAll({ where: { userId } });
-    return res.json(tasks);
+        const { status, search, fromDate, toDate } = req.query;
+        let where = { userId };
+
+        // Filtros
+        if (status) {
+            where.status = status;
+        }
+        if (search) {
+            where[Op.or] = [
+                { title: { [Op.iLike]: `%${search}%` } },
+                { description: { [Op.iLike]: `%${search}%` } }
+            ];
+        }
+        if (fromDate && toDate) {
+            where.dueDate = {
+                [Op.between]: [fromDate, toDate]
+            };
+        } else if (fromDate) {
+            where.dueDate = { [Op.gte]: fromDate };
+        } else if (toDate) {
+            where.dueDate = { [Op.lte]: toDate };
+        }
+
+        const tasks = await Task.findAll({ where });
+
+        return res.json(tasks);
     } catch (error) {
         console.error(error);
-    return res.status(500).json({ message: 'Error al obtener las tareas.' });
+        return res.status(500).json({ message: 'Error al obtener las tareas.' });
     }
 };
+
 
 // Obtener una tarea específica por ID
 exports.getTaskById = async (req, res) => {
